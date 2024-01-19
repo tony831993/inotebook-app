@@ -8,8 +8,8 @@ const fetchuser = require('../middleware/fetchUser');
 
 const JWT_SECRET = 'Thisisasample@JWTSecret';
 
-// Create a user using: POST "/api/auth/createuser". No login required
-router.post('/createuser', [
+// Create a user using: POST "/api/auth/create_user". No login required
+router.post('/create_user', [
     body('name', 'Invalid name provided.').isLength({ min: 3 }),
     body('email', 'Invalid email provided.').isEmail(),
     body('password', 'Password must be atleast 5 characters.').isLength({ min: 5 }),
@@ -89,8 +89,8 @@ router.post('/login', [
 });
 
 
-// Get logged in user details using: POST "/api/auth/getuser". login required
-router.post('/getuser', fetchuser, async (req, res) => {
+// Get logged in user details using: POST "/api/auth/get_user". login required
+router.post('/get_user', fetchuser, async (req, res) => {
     try {
         const userId = req.user.id;
         const user = await User.findById(userId).select("-password");
