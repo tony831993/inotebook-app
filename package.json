@@ -21,7 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "run-app": "concurrently \"npm runt start\" \"npx nodemon index.js\""
+    "run-app": "concurrently \"npm runt start\" \"npx nodemon ./backend/index.js\""
   },
   "eslintConfig": {
     "extends": [

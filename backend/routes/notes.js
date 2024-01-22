@@ -29,7 +29,6 @@ router.post('/add_note', fetchuser, [
         const note = new Note({
             title, description, tag, user: req.user.id
         });
-
         const savedNote = await note.save();
         res.json({ success: 'Saved successfully.', response: savedNote });
     } catch (error) {
@@ -43,20 +42,20 @@ router.put('/update_note/:id', fetchuser, async (req, res) => {
     try {
         const { title, description, tag } = req.body;
         const newNote = {};
-        if(title) newNote.title = title;
-        if(description) newNote.description = description;
-        if(tag) newNote.tag = tag;
+        if (title) newNote.title = title;
+        if (description) newNote.description = description;
+        if (tag) newNote.tag = tag;
 
         let note = await Note.findById(req.params.id);
-        if(!note) {
-            return res.status(404).send("Data not found.");
-        } else if(note.user.toString() !== req.user.id) {
-            return res.status(401).send("Unauthorized. Action not allowed.");
+        if (!note) {
+            return res.status(404).json({ error: "Data not found." });
+        } else if (note.user.toString() !== req.user.id) {
+            return res.status(401).json({ error: "Unauthorized. Action not allowed." });
         } else {
-            note = await Note.findByIdAndUpdate(req.params.id, {$set: newNote}, {new: true});
+            note = await Note.findByIdAndUpdate(req.params.id, { $set: newNote }, { new: true });
         }
 
-        res.json({ success: 'Udpated successfully.', response: note });
+        res.json({ success: 'Note udpated successfully.', response: note });
     } catch (error) {
         console.error(`API - update_note error: ${error.message}`);
         res.status(500).json({ error: `Internal server error.` });
@@ -67,15 +66,14 @@ router.put('/update_note/:id', fetchuser, async (req, res) => {
 router.delete('/delete_note/:id', fetchuser, async (req, res) => {
     try {
         let note = await Note.findById(req.params.id);
-        if(!note) {
-            return res.status(404).send("Data not found.");
-        } else if(note.user.toString() !== req.user.id) {
-            return res.status(401).send("Unauthorized. Action not allowed.");
+        if (!note) {
+            return res.status(404).json({ error: "Data not found." });
+        } else if (note.user.toString() !== req.user.id) {
+            return res.status(401).json({ error: "Unauthorized. Action not allowed." });
         } else {
             note = await Note.findByIdAndDelete(req.params.id);
         }
-
-        res.json({ success: 'Data deleted successfully.' });
+        res.json({ success: 'Note deleted successfully.' });
     } catch (error) {
         console.error(`API - delete_note error: ${error.message}`);
         res.status(500).json({ error: `Internal server error.` });
