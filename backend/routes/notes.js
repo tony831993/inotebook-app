@@ -31,9 +31,53 @@ router.post('/add_note', fetchuser, [
         });
 
         const savedNote = await note.save();
-        res.json({ success: 'Note saved successfully.' });
+        res.json({ success: 'Saved successfully.', response: savedNote });
     } catch (error) {
         console.error(`API - add_note error: ${error.message}`);
+        res.status(500).json({ error: `Internal server error.` });
+    }
+});
+
+// Update a existing note using: PUT "/api/notes/update_note". login required
+router.put('/update_note/:id', fetchuser, async (req, res) => {
+    try {
+        const { title, description, tag } = req.body;
+        const newNote = {};
+        if(title) newNote.title = title;
+        if(description) newNote.description = description;
+        if(tag) newNote.tag = tag;
+
+        let note = await Note.findById(req.params.id);
+        if(!note) {
+            return res.status(404).send("Data not found.");
+        } else if(note.user.toString() !== req.user.id) {
+            return res.status(401).send("Unauthorized. Action not allowed.");
+        } else {
+            note = await Note.findByIdAndUpdate(req.params.id, {$set: newNote}, {new: true});
+        }
+
+        res.json({ success: 'Udpated successfully.', response: note });
+    } catch (error) {
+        console.error(`API - update_note error: ${error.message}`);
+        res.status(500).json({ error: `Internal server error.` });
+    }
+});
+
+// Delete a note using: DELETE "/api/notes/delete_note". login required
+router.delete('/delete_note/:id', fetchuser, async (req, res) => {
+    try {
+        let note = await Note.findById(req.params.id);
+        if(!note) {
+            return res.status(404).send("Data not found.");
+        } else if(note.user.toString() !== req.user.id) {
+            return res.status(401).send("Unauthorized. Action not allowed.");
+        } else {
+            note = await Note.findByIdAndDelete(req.params.id);
+        }
+
+        res.json({ success: 'Data deleted successfully.' });
+    } catch (error) {
+        console.error(`API - delete_note error: ${error.message}`);
         res.status(500).json({ error: `Internal server error.` });
     }
 });
