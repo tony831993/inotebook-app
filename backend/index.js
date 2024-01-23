@@ -1,4 +1,4 @@
 const connectToMongo = require('./db');
 connectToMongo();
 
-console.log('Example index.js')
+console.log('iNotebook BE index.js')
