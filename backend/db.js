@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const cors = require('cors');
 
 const mongooseURI = 'mongodb://localhost:27017/inotebook?directConnection=true&readPreference=primary';
 const connectToMongo = () => {
@@ -7,6 +8,7 @@ const connectToMongo = () => {
         console.log('Connected to MongoDB successfully.');
 
         const app = express();
+        app.use(cors())
         const port = 3100;
 
         app.use(express.json());

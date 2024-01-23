@@ -4,16 +4,16 @@ import NoteContext from '../context/notes/NoteContext';
 const AddNote = () => {
     const context = useContext(NoteContext);
     const { addNote } = context;
-    let noteInit = {
+    let newNote = {
         title: '',
-        descripttion: '',
+        description: '',
         tag: ''
     }
-    const [note, setNote] = useState(noteInit);
+    const [note, setNote] = useState(newNote);
 
     const onFormSubmit = (e) => {
         e.preventDefault();
-        addNote(note.title, note.descripttion, note.tag);
+        addNote(note.title, note.description, note.tag);
     }
 
     const fieldUpdate = (e) => {
@@ -36,7 +36,7 @@ const AddNote = () => {
                     <label htmlFor="tag" className="form-label">Tag</label>
                     <input type="text" className="form-control" id="tag" name="tag" onChange={fieldUpdate} />
                 </div>
-                <button type="submit" className="btn btn-primary" onClick={onFormSubmit}>Submit</button>
+                <button type="submit" className="btn btn-primary btn-sm" onClick={onFormSubmit}>Add Note</button>
             </form>
         </div>
     )
