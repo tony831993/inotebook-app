@@ -14,15 +14,16 @@ router.post('/create_user', [
     body('email', 'Invalid email provided.').isEmail(),
     body('password', 'Password must be atleast 5 characters.').isLength({ min: 5 }),
 ], async (req, res) => {
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ success, message: errors.array() });
     }
     try {
         // Check for existing user email in DB.
         let user = await User.findOne({ email: req.body.email });
         if (user) {
-            return res.status(400).json({ error: `User with given email "${req.body.email}" already exists.` });
+            return res.status(400).json({ success, message: `User with given email "${req.body.email}" already exists.` });
         }
         const salt = await bcrypt.genSaltSync(10);
         const securePass = await bcrypt.hash(req.body.password, salt);
@@ -34,16 +35,18 @@ router.post('/create_user', [
         if (user) {
             const payload = {
                 user: {
-                  id: user.id
+                    id: user.id
                 }
-              }
+            }
+            success = true;
             const authToken = jwt.sign(payload, JWT_SECRET);
             res.json({
-                success: `User "${user.email}" created successfuly.`,
+                success,
+                message: `User "${user.email}" created successfuly.`,
                 authToken
             });
         } else {
-            res.status(500).json({ error: `Unable to create the user. Please try again later.` });
+            res.status(500).json({ success, message: `Unable to create the user. Please try again later.` });
         }
     } catch (error) {
         console.error(`DB error: ${error.message}`);
@@ -56,9 +59,10 @@ router.post('/login', [
     body('email', 'Invalid email provided.').isEmail(),
     body('password', 'Password cannot be blank.').exists()
 ], async (req, res) => {
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ success, message: errors.array() });
     }
     const { email, password } = req.body;
     try {
@@ -71,20 +75,22 @@ router.post('/login', [
                         id: user.id
                     }
                 }
+                success = true;
                 const authToken = jwt.sign(payload, JWT_SECRET);
                 res.json({
-                    success: `Login successful.`,
+                    success,
+                    message: `Login successful.`,
                     authToken
                 });
             } else {
-                return res.status(400).json({ error: `Provided email and password doesn't match. Please use correct email or password.` });
+                return res.status(400).json({ success, message: `Provided email and password doesn't match. Please use correct email or password.` });
             }
         } else {
-            return res.status(400).json({ error: `Provided email and password doesn't match. Please use correct email or password.` });
+            return res.status(400).json({ success, message: `Provided email and password doesn't match. Please use correct email or password.` });
         }
     } catch (error) {
         console.error(`login error: ${error.message}`);
-        res.status(500).json({ error: `Internal server error.` });
+        res.status(500).json({ success, message: `Internal server error.` });
     }
 });
 
@@ -92,9 +98,19 @@ router.post('/login', [
 // Get logged in user details using: POST "/api/auth/get_user". login required
 router.post('/get_user', fetchuser, async (req, res) => {
     try {
+        let success = false;
         const userId = req.user.id;
         const user = await User.findById(userId).select("-password");
-        res.send(user);
+        if (user) {
+            success = true;
+            res.json({
+                success,
+                message: 'User fetched successfully.',
+                data: user
+            });
+        } else {
+            return res.status(400).json({ success, message: `User doesn't exist.` });
+        }
     } catch (error) {
         console.error(`getuser error: ${error.message}`);
         res.status(500).json({ error: `Internal server error.` });

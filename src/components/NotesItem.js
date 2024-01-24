@@ -8,7 +8,7 @@ const NotesItem = (props) => {
     return (
         <div className='col-md-4'>
             <div className="card text-bg-light mb-3">
-                <span class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style={{'left': '95%'}}>
+                <span className="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style={{'left': '95%'}}>
                     {note.tag}
                 </span>
                 <div className="card-header">
