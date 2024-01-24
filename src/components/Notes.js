@@ -6,27 +6,30 @@ import AddNote from './AddNote';
 const Notes = () => {
     const context = useContext(NoteContext);
     const { notes, getNotes, editNote } = context;
-    useEffect(() => {
-        getNotes();
-        // eslint-disable-next-line
-    }, [])
-    const editNoteRef = useRef(null);
-    const closeEditModalRef = useRef(null);
-    const updateNote = (currentNote) => {
-        editNoteRef.current.click();
-        setNote(currentNote);
-    }
     let newNote = {
         id: '',
         title: '',
         description: '',
         tag: ''
-    }
+    };
     const [note, setNote] = useState(newNote);
+    const editNoteRef = useRef(null);
+    const closeEditModalRef = useRef(null);
+
+    useEffect(() => {
+        getNotes();
+        // eslint-disable-next-line
+    }, [])
+
+    const updateNote = (currentNote) => {
+        editNoteRef.current.click();
+        setNote(currentNote);
+    }
+    // On fields update
     const fieldUpdate = (e) => {
         setNote({ ...note, [e.target.name]: e.target.value });
     }
-
+    // On click save update note
     const saveUpdatedNote = async (e) => {
         e.preventDefault();
         await editNote(note._id, note.title, note.description, note.tag);
@@ -73,7 +76,7 @@ const Notes = () => {
             </div>
 
             <div className="row my-3">
-                <h2>Your notes</h2>
+                <h2>Your Notes</h2>
                 {notes.map((note) => {
                     return <NotesItem key={note._id} updateNote={updateNote} note={note} />;
                 })}
