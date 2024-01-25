@@ -1,8 +1,19 @@
-import React from 'react'
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext } from 'react'
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import AlertContext from '../context/alert/AlertContext';
 const Navbar = () => {
 
     const location = useLocation();
+    const authToken = localStorage.getItem('token');
+    const nav = useNavigate();
+    const alertContext = useContext(AlertContext);
+    const { showAlert } = alertContext;
+
+    const logoutUser = () => {
+        localStorage.removeItem('token');
+        showAlert(`User logged out.`, 'success');
+        nav('/login');
+    }
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
             <div className="container-fluid">
@@ -19,10 +30,11 @@ const Navbar = () => {
                             <Link className={`nav-link ${(location.pathname === '/about') ? 'active' : ''}`} to="/about">About</Link>
                         </li>
                     </ul>
-                    <div className='d-flex'>
-                        <Link className="btn btn-primary btn-sm mx-2" to="/login" role="button">Login</Link>
-                        <Link className="btn btn-primary btn-sm mx-2" to="/signup" role="button">Sign Up</Link>
-                    </div>
+                    {!authToken ?
+                        <div className='d-flex'>
+                            <Link className="btn btn-primary btn-sm mx-2" to="/login" role="button">Login</Link>
+                            <Link className="btn btn-primary btn-sm mx-2" to="/signup" role="button">Sign Up</Link>
+                        </div> : <button className='btn btn-primary btn-sm' onClick={logoutUser}>Logout</button>}
                 </div>
             </div>
         </nav>

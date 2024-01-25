@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import NoteContext from '../context/notes/NoteContext';
 import NotesItem from './NotesItem';
 import AddNote from './AddNote';
+import { useNavigate } from 'react-router-dom';
 
 const Notes = () => {
     const context = useContext(NoteContext);
@@ -15,9 +16,16 @@ const Notes = () => {
     const [note, setNote] = useState(newNote);
     const editNoteRef = useRef(null);
     const closeEditModalRef = useRef(null);
+    const nav = useNavigate();
 
     useEffect(() => {
-        getNotes();
+        const authToken = localStorage.getItem('token');
+        if (authToken) {
+            getNotes();
+        } else {
+            nav('/login');
+        }
+
         // eslint-disable-next-line
     }, [])
 
@@ -64,7 +72,7 @@ const Notes = () => {
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="tag" className="form-label">Tag</label>
-                                    <input type="text" className="form-control" id="tag" name="tag" onChange={fieldUpdate} value={note.tag}/>
+                                    <input type="text" className="form-control" id="tag" name="tag" onChange={fieldUpdate} value={note.tag} />
                                 </div>
                             </form>
                         </div>

@@ -11,16 +11,17 @@ import NoteState from './context/notes/NoteState';
 import Alert from './components/Alert';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import UserContext from './context/user/UserContext';
+import AlertState from './context/alert/AlertState';
 
 function App() {
   return (
     <>
-      {/* <UserContext> */}
+      <AlertState>
+        {/* <UserContext> */}
         <NoteState>
           <Router>
             <Navbar></Navbar>
-            <Alert message="" type="primary" />
+            <Alert />
             <div className="container my-2">
               <Routes>
                 <Route exact path="/" element={<Home />} />
@@ -31,7 +32,8 @@ function App() {
             </div>
           </Router>
         </NoteState>
-      {/* </UserContext> */}
+        {/* </UserContext> */}
+      </AlertState>
     </>
   );
 }

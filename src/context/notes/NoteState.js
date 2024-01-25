@@ -1,65 +1,77 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import NoteContext from "./NoteContext";
+import AlertContext from "../alert/AlertContext";
 
 const NoteState = (props) => {
-  const host = 'http://localhost:3100';
+  
+  const serverHost = process.env.REACT_APP_SERVER_HOST;
   const notesInitital = [];
   const [notes, setNotes] = useState(notesInitital);
+  const authToken = localStorage.getItem('token');
+  const alertContext = useContext(AlertContext);
+  const { showAlert } = alertContext;
 
   // Get all notes
   const getNotes = async () => {
     try {
-      const url = `${host}/api/notes/fetch_all_notes`;
+      const url = `${serverHost}/api/notes/fetch_all_notes`;
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhYTViOWFiYzE3ZThjNTU5OGI0ZTliIn0sImlhdCI6MTcwNTY2MzM5MX0.VrxmdORd8qMkcO9ZXK9lAzVMHxb51uW_jsTt4EERmeY"
+          "auth-token": authToken
         }
       });
       const json = await response.json()
-      if (json) {
-        setNotes(json)
+      if (json.success) {
+        setNotes(json.data)
+      } else {
+        showAlert(`Unable to fetch notes.`, 'danger');
       }
     } catch (error) {
       console.error(error);
+      showAlert(`Error: ${error.massage}`, 'danger');
     }
   }
   // Add a new note
   const addNote = async (title, description, tag) => {
     try {
-      const url = `${host}/api/notes/add_note`;
+      const url = `${serverHost}/api/notes/add_note`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhYTViOWFiYzE3ZThjNTU5OGI0ZTliIn0sImlhdCI6MTcwNTY2MzM5MX0.VrxmdORd8qMkcO9ZXK9lAzVMHxb51uW_jsTt4EERmeY"
+          "auth-token": authToken
         },
         body: JSON.stringify({ title, description, tag }),
       });
       const json = await response.json();
-      if (json) {
-        let note = json.response;
+      if (json.success) {
+        let note = json.data;
         setNotes(notes.concat(note));
+        showAlert(`Note added successfully.`, 'success');
+      } else {
+        showAlert(`Unable to add new note.`, 'danger');
       }
     } catch (error) {
       console.error(error);
+      showAlert(`Error: ${error.massage}`, 'danger');
     }
   };
   // Update a note by _id
   const editNote = async (id, title, description, tag) => {
     try {
-      const url = `${host}/api/notes/update_note/${id}`;
+      const url = `${serverHost}/api/notes/update_note/${id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhYTViOWFiYzE3ZThjNTU5OGI0ZTliIn0sImlhdCI6MTcwNTY2MzM5MX0.VrxmdORd8qMkcO9ZXK9lAzVMHxb51uW_jsTt4EERmeY"
+          "auth-token": authToken
         },
         body: JSON.stringify({ title, description, tag }),
       });
       const json = await response.json();
-      if (json) {
+      if (json.success) {
         let newNotes = JSON.parse(JSON.stringify(notes));
         newNotes.map((note) => {
           if (note._id === id) {
@@ -70,31 +82,37 @@ const NoteState = (props) => {
           return note;
         })
         setNotes(newNotes);
+        showAlert('Note updated successfully.', 'success');
+      } else {
+        showAlert(`Unable to edit note.`, 'danger');
       }
     } catch (error) {
       console.error(error);
+      showAlert(`Error: ${error.massage}`, 'danger');
     }
   };
   // Delete a note by _id
   const deleteNote = async (id) => {
     try {
-      const url = `${host}/api/notes/delete_note/${id}`;
+      const url = `${serverHost}/api/notes/delete_note/${id}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhYTViOWFiYzE3ZThjNTU5OGI0ZTliIn0sImlhdCI6MTcwNTY2MzM5MX0.VrxmdORd8qMkcO9ZXK9lAzVMHxb51uW_jsTt4EERmeY"
+          "auth-token": authToken
         },
       });
       const json = await response.json();
-      if (json) {
+      if (json.success) {
         const newNotes = notes.filter((note) => { return note._id !== id });
         setNotes(newNotes);
+        showAlert(`Note delete successfully.`, 'success');
       } else {
-
+        showAlert(`Unable to delete selected note.`, 'danger');
       }
     } catch (error) {
       console.error(error);
+      showAlert(`Error: ${error.massage}`, 'danger');
     }
   };
 
