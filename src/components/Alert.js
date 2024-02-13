@@ -6,7 +6,7 @@ const Alert = (props) => {
     const { alert } = alertContext;
     return (
         alert && <>
-            <div className={`alert alert-${alert.type}`} role="alert">
+            <div className={`app-msg alert alert-${alert.type}`} role="alert">
                 {alert.msg}
             </div>
         </>
